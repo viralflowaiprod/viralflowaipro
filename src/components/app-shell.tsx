@@ -2,6 +2,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import {
+  Activity,
   Bot,
   Calendar,
   History,
@@ -24,6 +25,7 @@ import { checkIsAdmin } from "@/lib/admin.functions";
 const baseNav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/generator", label: "Gerador", icon: Wand2 },
+  { to: "/generation", label: "Processando", icon: Activity },
   { to: "/history", label: "Histórico", icon: History },
   { to: "/schedule", label: "Agenda", icon: Calendar },
   { to: "/accounts", label: "Contas", icon: Settings },

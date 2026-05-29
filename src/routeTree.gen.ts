@@ -15,10 +15,12 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiGenerateVideoRouteImport } from './routes/api/generate-video'
 import { Route as AuthenticatedScheduleRouteImport } from './routes/_authenticated/schedule'
 import { Route as AuthenticatedIntegrationsRouteImport } from './routes/_authenticated/integrations'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedGeneratorRouteImport } from './routes/_authenticated/generator'
+import { Route as AuthenticatedGenerationRouteImport } from './routes/_authenticated/generation'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
@@ -52,6 +54,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGenerateVideoRoute = ApiGenerateVideoRouteImport.update({
+  id: '/api/generate-video',
+  path: '/api/generate-video',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedScheduleRoute = AuthenticatedScheduleRouteImport.update({
   id: '/schedule',
   path: '/schedule',
@@ -71,6 +78,11 @@ const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
 const AuthenticatedGeneratorRoute = AuthenticatedGeneratorRouteImport.update({
   id: '/generator',
   path: '/generator',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedGenerationRoute = AuthenticatedGenerationRouteImport.update({
+  id: '/generation',
+  path: '/generation',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -98,10 +110,12 @@ export interface FileRoutesByFullPath {
   '/accounts': typeof AuthenticatedAccountsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/generation': typeof AuthenticatedGenerationRoute
   '/generator': typeof AuthenticatedGeneratorRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/integrations': typeof AuthenticatedIntegrationsRoute
   '/schedule': typeof AuthenticatedScheduleRoute
+  '/api/generate-video': typeof ApiGenerateVideoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -112,10 +126,12 @@ export interface FileRoutesByTo {
   '/accounts': typeof AuthenticatedAccountsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/generation': typeof AuthenticatedGenerationRoute
   '/generator': typeof AuthenticatedGeneratorRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/integrations': typeof AuthenticatedIntegrationsRoute
   '/schedule': typeof AuthenticatedScheduleRoute
+  '/api/generate-video': typeof ApiGenerateVideoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -128,10 +144,12 @@ export interface FileRoutesById {
   '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/generation': typeof AuthenticatedGenerationRoute
   '/_authenticated/generator': typeof AuthenticatedGeneratorRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/integrations': typeof AuthenticatedIntegrationsRoute
   '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
+  '/api/generate-video': typeof ApiGenerateVideoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -144,10 +162,12 @@ export interface FileRouteTypes {
     | '/accounts'
     | '/admin'
     | '/dashboard'
+    | '/generation'
     | '/generator'
     | '/history'
     | '/integrations'
     | '/schedule'
+    | '/api/generate-video'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -158,10 +178,12 @@ export interface FileRouteTypes {
     | '/accounts'
     | '/admin'
     | '/dashboard'
+    | '/generation'
     | '/generator'
     | '/history'
     | '/integrations'
     | '/schedule'
+    | '/api/generate-video'
   id:
     | '__root__'
     | '/'
@@ -173,10 +195,12 @@ export interface FileRouteTypes {
     | '/_authenticated/accounts'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/_authenticated/generation'
     | '/_authenticated/generator'
     | '/_authenticated/history'
     | '/_authenticated/integrations'
     | '/_authenticated/schedule'
+    | '/api/generate-video'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,6 +210,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  ApiGenerateVideoRoute: typeof ApiGenerateVideoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/generate-video': {
+      id: '/api/generate-video'
+      path: '/api/generate-video'
+      fullPath: '/api/generate-video'
+      preLoaderRoute: typeof ApiGenerateVideoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/schedule': {
       id: '/_authenticated/schedule'
       path: '/schedule'
@@ -258,6 +290,13 @@ declare module '@tanstack/react-router' {
       path: '/generator'
       fullPath: '/generator'
       preLoaderRoute: typeof AuthenticatedGeneratorRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/generation': {
+      id: '/_authenticated/generation'
+      path: '/generation'
+      fullPath: '/generation'
+      preLoaderRoute: typeof AuthenticatedGenerationRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
@@ -288,6 +327,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGenerationRoute: typeof AuthenticatedGenerationRoute
   AuthenticatedGeneratorRoute: typeof AuthenticatedGeneratorRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedIntegrationsRoute: typeof AuthenticatedIntegrationsRoute
@@ -298,6 +338,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGenerationRoute: AuthenticatedGenerationRoute,
   AuthenticatedGeneratorRoute: AuthenticatedGeneratorRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedIntegrationsRoute: AuthenticatedIntegrationsRoute,
@@ -315,17 +356,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  ApiGenerateVideoRoute: ApiGenerateVideoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

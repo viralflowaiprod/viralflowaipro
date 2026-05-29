@@ -221,6 +221,7 @@ export type Database = {
           created_at: string
           cta: string | null
           error: string | null
+          error_message: string | null
           id: string
           niche: string | null
           payload: Json | null
@@ -229,6 +230,7 @@ export type Database = {
           quantity: number
           status: string
           theme: string | null
+          topic: string | null
           updated_at: string
           user_id: string
         }
@@ -236,6 +238,7 @@ export type Database = {
           created_at?: string
           cta?: string | null
           error?: string | null
+          error_message?: string | null
           id?: string
           niche?: string | null
           payload?: Json | null
@@ -244,6 +247,7 @@ export type Database = {
           quantity?: number
           status?: string
           theme?: string | null
+          topic?: string | null
           updated_at?: string
           user_id: string
         }
@@ -251,6 +255,7 @@ export type Database = {
           created_at?: string
           cta?: string | null
           error?: string | null
+          error_message?: string | null
           id?: string
           niche?: string | null
           payload?: Json | null
@@ -259,6 +264,7 @@ export type Database = {
           quantity?: number
           status?: string
           theme?: string | null
+          topic?: string | null
           updated_at?: string
           user_id?: string
         }
