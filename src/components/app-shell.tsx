@@ -1,27 +1,33 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import {
   Bot,
   Calendar,
   History,
   LayoutDashboard,
   LogOut,
+  Plug,
   Settings,
+  Shield,
   Sparkles,
   Wand2,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { User } from "@supabase/supabase-js";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { checkIsAdmin } from "@/lib/admin.functions";
 
-const nav = [
+const baseNav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/generator", label: "Gerador", icon: Wand2 },
   { to: "/history", label: "Histórico", icon: History },
-  { to: "/schedule", label: "Agendamento", icon: Calendar },
+  { to: "/schedule", label: "Agenda", icon: Calendar },
   { to: "/accounts", label: "Contas", icon: Settings },
+  { to: "/integrations", label: "Integrações", icon: Plug },
 ] as const;
 
 export function AppShell({ children, user }: { children: ReactNode; user: User }) {
