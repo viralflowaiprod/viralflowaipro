@@ -1,33 +1,52 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import {
   Bot,
   Calendar,
   History,
   LayoutDashboard,
   LogOut,
+  Plug,
   Settings,
+  Shield,
   Sparkles,
   Wand2,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { User } from "@supabase/supabase-js";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { checkIsAdmin } from "@/lib/admin.functions";
 
-const nav = [
+const baseNav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/generator", label: "Gerador", icon: Wand2 },
   { to: "/history", label: "Histórico", icon: History },
-  { to: "/schedule", label: "Agendamento", icon: Calendar },
+  { to: "/schedule", label: "Agenda", icon: Calendar },
   { to: "/accounts", label: "Contas", icon: Settings },
+  { to: "/integrations", label: "Integrações", icon: Plug },
 ] as const;
 
 export function AppShell({ children, user }: { children: ReactNode; user: User }) {
   const router = useRouterState();
   const navigate = useNavigate();
   const path = router.location.pathname;
+
+  const checkAdmin = useServerFn(checkIsAdmin);
+  const { data: adminData } = useQuery({
+    queryKey: ["isAdmin", user.id],
+    queryFn: () => checkAdmin(),
+    staleTime: 60_000,
+  });
+
+  const nav = useMemo(() => {
+    const items: Array<{ to: string; label: string; icon: typeof LayoutDashboard }> = [...baseNav];
+    if (adminData?.isAdmin) items.push({ to: "/admin", label: "Admin", icon: Shield });
+    return items;
+  }, [adminData?.isAdmin]);
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -92,7 +111,7 @@ export function AppShell({ children, user }: { children: ReactNode; user: User }
         {/* Mobile bottom nav */}
         <div className="md:hidden h-20" />
         <nav className="md:hidden fixed bottom-0 inset-x-0 border-t border-sidebar-border bg-sidebar/95 backdrop-blur z-40">
-          <div className="grid grid-cols-5">
+          <div className="grid" style={{ gridTemplateColumns: `repeat(${nav.length}, minmax(0, 1fr))` }}>
             {nav.map((item) => {
               const active = path.startsWith(item.to);
               return (
