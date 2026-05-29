@@ -35,6 +35,19 @@ export function AppShell({ children, user }: { children: ReactNode; user: User }
   const navigate = useNavigate();
   const path = router.location.pathname;
 
+  const checkAdmin = useServerFn(checkIsAdmin);
+  const { data: adminData } = useQuery({
+    queryKey: ["isAdmin", user.id],
+    queryFn: () => checkAdmin(),
+    staleTime: 60_000,
+  });
+
+  const nav = useMemo(() => {
+    const items: Array<{ to: string; label: string; icon: typeof LayoutDashboard }> = [...baseNav];
+    if (adminData?.isAdmin) items.push({ to: "/admin", label: "Admin", icon: Shield });
+    return items;
+  }, [adminData?.isAdmin]);
+
   const logout = async () => {
     await supabase.auth.signOut();
     navigate({ to: "/login", replace: true });
@@ -98,7 +111,7 @@ export function AppShell({ children, user }: { children: ReactNode; user: User }
         {/* Mobile bottom nav */}
         <div className="md:hidden h-20" />
         <nav className="md:hidden fixed bottom-0 inset-x-0 border-t border-sidebar-border bg-sidebar/95 backdrop-blur z-40">
-          <div className="grid grid-cols-5">
+          <div className="grid" style={{ gridTemplateColumns: `repeat(${nav.length}, minmax(0, 1fr))` }}>
             {nav.map((item) => {
               const active = path.startsWith(item.to);
               return (
