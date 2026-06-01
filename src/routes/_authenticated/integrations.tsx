@@ -44,9 +44,18 @@ function IntegrationsPage() {
   return (
     <div className="p-6 md:p-8 space-y-6">
       <PageHeader
-        title="Integrações"
-        subtitle="Conecte ferramentas externas para ativar geração e distribuição automática"
+        title="Integrações da plataforma"
+        subtitle="Painel admin — credenciais técnicas centralizadas. Usuários finais nunca veem isso."
       />
+
+      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm flex items-start gap-3">
+        <ShieldAlert className="size-5 text-amber-500 shrink-0 mt-0.5" />
+        <div>
+          <p className="font-medium">Área restrita — apenas administradores</p>
+          <p className="text-muted-foreground">Essas chaves alimentam toda a plataforma. Usuários não precisam configurar nada.</p>
+        </div>
+      </div>
+
 
       <div className="grid gap-4 md:grid-cols-2">
         {integrations.map((i) => (
