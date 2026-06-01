@@ -28,9 +28,10 @@ const baseNav = [
   { to: "/generation", label: "Processando", icon: Activity },
   { to: "/history", label: "Histórico", icon: History },
   { to: "/schedule", label: "Agenda", icon: Calendar },
-  { to: "/accounts", label: "Contas", icon: Settings },
-  { to: "/integrations", label: "Integrações", icon: Plug },
+  { to: "/settings/integrations", label: "Conectar redes", icon: Plug },
+  { to: "/accounts", label: "Conta", icon: Settings },
 ] as const;
+
 
 export function AppShell({ children, user }: { children: ReactNode; user: User }) {
   const router = useRouterState();
@@ -46,9 +47,13 @@ export function AppShell({ children, user }: { children: ReactNode; user: User }
 
   const nav = useMemo(() => {
     const items: Array<{ to: string; label: string; icon: typeof LayoutDashboard }> = [...baseNav];
-    if (adminData?.isAdmin) items.push({ to: "/admin", label: "Admin", icon: Shield });
+    if (adminData?.isAdmin) {
+      items.push({ to: "/integrations", label: "Integrações", icon: Plug });
+      items.push({ to: "/admin", label: "Admin", icon: Shield });
+    }
     return items;
   }, [adminData?.isAdmin]);
+
 
   const logout = async () => {
     await supabase.auth.signOut();
