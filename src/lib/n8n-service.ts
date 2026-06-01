@@ -48,7 +48,7 @@ async function sendToN8N<T = unknown>(
     });
 
     if (!res.ok) {
-      return handleError(`n8n respondeu com status ${res.status}`);
+      return handleError<T>(`n8n respondeu com status ${res.status}`);
     }
 
     const text = await res.text();
@@ -61,7 +61,7 @@ async function sendToN8N<T = unknown>(
     return handleResponse<T>(parsed);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return handleError(`Falha de rede ao contatar o n8n: ${msg}`);
+    return handleError<T>(`Falha de rede ao contatar o n8n: ${msg}`);
   }
 }
 
@@ -69,7 +69,7 @@ function handleResponse<T>(raw: unknown): N8nResponse<T> {
   return { ok: true, data: raw as T, raw };
 }
 
-function handleError(message: string): N8nResponse {
+function handleError<T = unknown>(message: string): N8nResponse<T> {
   return { ok: false, error: message };
 }
 
@@ -81,8 +81,9 @@ async function generateContent(
     ...input,
     timestamp: new Date().toISOString(),
   };
-  return sendToN8N("generate_content", payload);
+  return sendToN8N("generate_content", payload as unknown as Record<string, unknown>);
 }
+
 
 export const n8nService = {
   sendToN8N,
