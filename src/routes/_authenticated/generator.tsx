@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
-import { Wand2 } from "lucide-react";
+import { Wand2, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/app-shell";
@@ -8,104 +8,172 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { n8nService } from "@/lib/n8n-service";
 
 export const Route = createFileRoute("/_authenticated/generator")({
   head: () => ({ meta: [{ title: "Gerador — ViralFlow" }] }),
   component: Generator,
 });
 
+type ResultState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "success"; data: unknown }
+  | { kind: "error"; message: string };
+
 function Generator() {
-  const navigate = useNavigate();
-  const [niche, setNiche] = useState("");
-  const [theme, setTheme] = useState("");
-  const [cta, setCta] = useState("");
+  const [topic, setTopic] = useState("");
   const [platform, setPlatform] = useState("youtube");
-  const [quantity, setQuantity] = useState(5);
-  const [loading, setLoading] = useState(false);
+  const [contentType, setContentType] = useState("short_video");
+  const [tone, setTone] = useState("inspirador");
+  const [language, setLanguage] = useState("pt-BR");
+  const [result, setResult] = useState<ResultState>({ kind: "idle" });
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
-    const { data: job, error } = await supabase
-      .from("video_jobs")
-      .insert({ user_id: u.user.id, niche, theme, cta, platform, quantity, status: "queued" })
-      .select()
-      .single();
+    setResult({ kind: "loading" });
 
-    if (error) {
-      toast.error(error.message);
-      setLoading(false);
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) {
+      setResult({ kind: "error", message: "Sessão expirada. Faça login novamente." });
       return;
     }
 
-    // Create placeholder video records
-    const rows = Array.from({ length: quantity }).map((_, i) => ({
-      user_id: u.user!.id,
-      title: `${theme || niche} #${i + 1}`,
-      niche,
-      theme,
+    const res = await n8nService.generateContent({
+      topic,
       platform,
-      cta,
-      status: "pending" as const,
-    }));
-    await supabase.from("videos").insert(rows);
-    await supabase.from("automation_logs").insert({
-      user_id: u.user.id,
-      job_id: job.id,
-      level: "info",
-      message: `Job criado: ${quantity} vídeo(s) na fila`,
+      contentType,
+      tone,
+      language,
+      userId: u.user.id,
     });
 
-    toast.success(`${quantity} vídeo(s) enfileirado(s)!`);
-    setLoading(false);
-    navigate({ to: "/history" });
+    if (!res.ok) {
+      toast.error(res.error ?? "Não foi possível gerar o conteúdo.");
+      setResult({ kind: "error", message: res.error ?? "Erro desconhecido." });
+      return;
+    }
+
+    toast.success("Conteúdo recebido do n8n!");
+    setResult({ kind: "success", data: res.data });
   };
 
   return (
-    <div className="p-6 md:p-10 max-w-3xl mx-auto">
-      <PageHeader title="Gerador" subtitle="Crie um lote de vídeos virais com IA" />
+    <div className="p-6 md:p-10 max-w-3xl mx-auto space-y-6">
+      <PageHeader title="Gerador" subtitle="Crie conteúdo viral com IA — totalmente automatizado" />
+
       <Card className="p-6 bg-gradient-surface border-border/60 shadow-card">
         <form onSubmit={submit} className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="topic">Tópico</Label>
+            <Input
+              id="topic"
+              required
+              placeholder="Ex: rotina matinal de pessoas produtivas"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+            />
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="niche">Nicho</Label>
-              <Input id="niche" required placeholder="Fitness, finanças..." value={niche} onChange={(e) => setNiche(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>Plataforma destino</Label>
+              <Label>Plataforma</Label>
               <Select value={platform} onValueChange={setPlatform}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="youtube">YouTube Shorts</SelectItem>
-                  <SelectItem value="instagram">Instagram Reels</SelectItem>
+                  <SelectItem value="youtube">YouTube</SelectItem>
+                  <SelectItem value="instagram">Instagram</SelectItem>
                   <SelectItem value="tiktok">TikTok</SelectItem>
+                  <SelectItem value="pinterest">Pinterest</SelectItem>
+                  <SelectItem value="facebook">Facebook</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Tipo de conteúdo</Label>
+              <Select value={contentType} onValueChange={setContentType}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="short_video">Vídeo curto</SelectItem>
+                  <SelectItem value="reel_script">Roteiro de Reels</SelectItem>
+                  <SelectItem value="tiktok_script">Roteiro TikTok</SelectItem>
+                  <SelectItem value="carousel">Carrossel</SelectItem>
+                  <SelectItem value="post_image">Post (imagem)</SelectItem>
+                  <SelectItem value="caption">Legenda</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="theme">Tema</Label>
-            <Textarea id="theme" required placeholder="Sobre o que serão os vídeos?" value={theme} onChange={(e) => setTheme(e.target.value)} />
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Tom de voz</Label>
+              <Select value={tone} onValueChange={setTone}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="inspirador">Inspirador</SelectItem>
+                  <SelectItem value="divertido">Divertido</SelectItem>
+                  <SelectItem value="educativo">Educativo</SelectItem>
+                  <SelectItem value="provocativo">Provocativo</SelectItem>
+                  <SelectItem value="profissional">Profissional</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Idioma</Label>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pt-BR">Português (BR)</SelectItem>
+                  <SelectItem value="en-US">English (US)</SelectItem>
+                  <SelectItem value="es-ES">Español</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="cta">CTA final</Label>
-            <Input id="cta" placeholder="Segue para mais!" value={cta} onChange={(e) => setCta(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="qty">Quantidade ({quantity})</Label>
-            <Input id="qty" type="range" min={1} max={30} value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
-            <Wand2 className="size-4 mr-2" />
-            {loading ? "Enfileirando..." : "Gerar conteúdo"}
+
+          <Button
+            type="submit"
+            disabled={result.kind === "loading"}
+            className="w-full bg-gradient-primary shadow-glow"
+          >
+            {result.kind === "loading" ? (
+              <><Loader2 className="size-4 mr-2 animate-spin" /> Gerando conteúdo...</>
+            ) : (
+              <><Wand2 className="size-4 mr-2" /> Gerar conteúdo</>
+            )}
           </Button>
         </form>
       </Card>
+
+      {result.kind === "success" && (
+        <Card className="p-6 bg-gradient-surface border-border/60 shadow-card">
+          <div className="flex items-center gap-2 mb-3 text-success">
+            <CheckCircle2 className="size-5" />
+            <h3 className="font-display font-semibold">Conteúdo gerado</h3>
+          </div>
+          <pre className="text-xs bg-background/60 border border-border/40 rounded-lg p-4 overflow-auto whitespace-pre-wrap max-h-[480px]">
+{typeof result.data === "string" ? result.data : JSON.stringify(result.data, null, 2)}
+          </pre>
+        </Card>
+      )}
+
+      {result.kind === "error" && (
+        <Card className="p-6 border-destructive/40 bg-destructive/5">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="size-5 text-destructive shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-destructive">Não foi possível gerar agora</h3>
+              <p className="text-sm text-muted-foreground mt-1">{result.message}</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Verifique se o workflow no n8n está ativo. Tente novamente em instantes.
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
