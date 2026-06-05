@@ -193,6 +193,111 @@ ON CONFLICT DO NOTHING;`}</code></pre>
           <strong className="text-foreground">Sobre senhas:</strong> as senhas dos usuários são criptografadas (bcrypt) pelo sistema de autenticação e não podem ser visualizadas em texto puro — nem por administradores. Use "Enviar reset de senha" para que o usuário defina uma nova.
         </p>
       </div>
+
+      <ActivationCodesPanel />
+    </div>
+  );
+}
+
+function ActivationCodesPanel() {
+  const list = useServerFn(adminListCodes);
+  const gen = useServerFn(adminGenerateCodes);
+  const revoke = useServerFn(adminRevokeCode);
+  const qc = useQueryClient();
+  const [qty, setQty] = useState(5);
+
+  const codes = useQuery({ queryKey: ["admin-codes"], queryFn: () => list() });
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["admin-codes"] });
+
+  const generate = useMutation({
+    mutationFn: () => gen({ data: { quantity: qty, plan_tier: "standard" } }),
+    onSuccess: (r) => { toast.success(`${r.codes.length} códigos gerados`); invalidate(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const rev = useMutation({
+    mutationFn: (id: string) => revoke({ data: { id } }),
+    onSuccess: () => { toast.success("Código revogado"); invalidate(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-end justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="font-display text-xl">Códigos de ativação</h2>
+          <p className="text-sm text-muted-foreground">
+            Gere códigos manuais ou veja os códigos vindos das plataformas de pagamento.
+          </p>
+        </div>
+        <div className="flex items-end gap-2">
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">Quantidade</label>
+            <Input
+              type="number" min={1} max={100} value={qty}
+              onChange={(e) => setQty(Math.max(1, Math.min(100, Number(e.target.value))))}
+              className="w-24"
+            />
+          </div>
+          <Button
+            onClick={() => generate.mutate()}
+            disabled={generate.isPending}
+            className="bg-gradient-primary shadow-glow"
+          >
+            <KeyRound className="size-4 mr-2" /> Gerar códigos
+          </Button>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border/60 bg-gradient-surface overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Código</TableHead>
+              <TableHead>Origem</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Comprador</TableHead>
+              <TableHead>Criado</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {codes.isLoading && (
+              <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">Carregando...</TableCell></TableRow>
+            )}
+            {(codes.data ?? []).map((c) => (
+              <TableRow key={c.id}>
+                <TableCell className="font-mono text-xs">{c.code}</TableCell>
+                <TableCell><Badge variant="outline">{c.source}</Badge></TableCell>
+                <TableCell>
+                  <Badge className={
+                    c.status === "active" ? "bg-success/20 text-success border-success/30" :
+                    c.status === "used" ? "bg-primary/20 text-primary-glow border-primary/30" :
+                    "bg-destructive/20 text-destructive border-destructive/30"
+                  }>{c.status}</Badge>
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">{c.buyer_email ?? "—"}</TableCell>
+                <TableCell className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: ptBR })}
+                </TableCell>
+                <TableCell className="text-right">
+                  {c.status !== "revoked" && (
+                    <Button
+                      variant="ghost" size="icon" title="Revogar"
+                      onClick={() => { if (confirm(`Revogar ${c.code}?`)) rev.mutate(c.id); }}
+                    >
+                      <Ban className="size-4 text-destructive" />
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+            {!codes.isLoading && (codes.data ?? []).length === 0 && (
+              <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">Nenhum código gerado ainda.</TableCell></TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
