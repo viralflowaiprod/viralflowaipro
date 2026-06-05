@@ -23,8 +23,10 @@ import { Route as AuthenticatedGeneratorRouteImport } from './routes/_authentica
 import { Route as AuthenticatedGenerationRouteImport } from './routes/_authenticated/generation'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedActivateRouteImport } from './routes/_authenticated/activate'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
 import { Route as AuthenticatedSettingsIntegrationsRouteImport } from './routes/_authenticated/settings.integrations'
+import { Route as ApiPublicWebhooksPaymentsProviderRouteImport } from './routes/api/public/webhooks/payments.$provider'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -96,6 +98,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedActivateRoute = AuthenticatedActivateRouteImport.update({
+  id: '/activate',
+  path: '/activate',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
   id: '/accounts',
   path: '/accounts',
@@ -107,6 +114,12 @@ const AuthenticatedSettingsIntegrationsRoute =
     path: '/settings/integrations',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicWebhooksPaymentsProviderRoute =
+  ApiPublicWebhooksPaymentsProviderRouteImport.update({
+    id: '/api/public/webhooks/payments/$provider',
+    path: '/api/public/webhooks/payments/$provider',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -115,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/activate': typeof AuthenticatedActivateRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/generation': typeof AuthenticatedGenerationRoute
@@ -124,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/schedule': typeof AuthenticatedScheduleRoute
   '/api/generate-video': typeof ApiGenerateVideoRoute
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
+  '/api/public/webhooks/payments/$provider': typeof ApiPublicWebhooksPaymentsProviderRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,6 +147,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/activate': typeof AuthenticatedActivateRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/generation': typeof AuthenticatedGenerationRoute
@@ -141,6 +157,7 @@ export interface FileRoutesByTo {
   '/schedule': typeof AuthenticatedScheduleRoute
   '/api/generate-video': typeof ApiGenerateVideoRoute
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
+  '/api/public/webhooks/payments/$provider': typeof ApiPublicWebhooksPaymentsProviderRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -151,6 +168,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
+  '/_authenticated/activate': typeof AuthenticatedActivateRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/generation': typeof AuthenticatedGenerationRoute
@@ -160,6 +178,7 @@ export interface FileRoutesById {
   '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
   '/api/generate-video': typeof ApiGenerateVideoRoute
   '/_authenticated/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
+  '/api/public/webhooks/payments/$provider': typeof ApiPublicWebhooksPaymentsProviderRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -170,6 +189,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/accounts'
+    | '/activate'
     | '/admin'
     | '/dashboard'
     | '/generation'
@@ -179,6 +199,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/api/generate-video'
     | '/settings/integrations'
+    | '/api/public/webhooks/payments/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,6 +208,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/accounts'
+    | '/activate'
     | '/admin'
     | '/dashboard'
     | '/generation'
@@ -196,6 +218,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/api/generate-video'
     | '/settings/integrations'
+    | '/api/public/webhooks/payments/$provider'
   id:
     | '__root__'
     | '/'
@@ -205,6 +228,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_authenticated/accounts'
+    | '/_authenticated/activate'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/generation'
@@ -214,6 +238,7 @@ export interface FileRouteTypes {
     | '/_authenticated/schedule'
     | '/api/generate-video'
     | '/_authenticated/settings/integrations'
+    | '/api/public/webhooks/payments/$provider'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -224,6 +249,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   ApiGenerateVideoRoute: typeof ApiGenerateVideoRoute
+  ApiPublicWebhooksPaymentsProviderRoute: typeof ApiPublicWebhooksPaymentsProviderRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -326,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/activate': {
+      id: '/_authenticated/activate'
+      path: '/activate'
+      fullPath: '/activate'
+      preLoaderRoute: typeof AuthenticatedActivateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/accounts': {
       id: '/_authenticated/accounts'
       path: '/accounts'
@@ -340,11 +373,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsIntegrationsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/webhooks/payments/$provider': {
+      id: '/api/public/webhooks/payments/$provider'
+      path: '/api/public/webhooks/payments/$provider'
+      fullPath: '/api/public/webhooks/payments/$provider'
+      preLoaderRoute: typeof ApiPublicWebhooksPaymentsProviderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
+  AuthenticatedActivateRoute: typeof AuthenticatedActivateRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGenerationRoute: typeof AuthenticatedGenerationRoute
@@ -357,6 +398,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
+  AuthenticatedActivateRoute: AuthenticatedActivateRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGenerationRoute: AuthenticatedGenerationRoute,
@@ -380,17 +422,9 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   ApiGenerateVideoRoute: ApiGenerateVideoRoute,
+  ApiPublicWebhooksPaymentsProviderRoute:
+    ApiPublicWebhooksPaymentsProviderRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
