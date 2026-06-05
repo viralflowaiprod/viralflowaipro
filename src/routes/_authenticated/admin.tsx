@@ -16,6 +16,9 @@ import {
 import {
   listUsers, setUserRole, toggleBan, sendPasswordReset, deleteUser, checkIsAdmin,
 } from "@/lib/admin.functions";
+import {
+  adminGenerateCodes, adminListCodes, adminRevokeCode,
+} from "@/lib/subscriptions.functions";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
