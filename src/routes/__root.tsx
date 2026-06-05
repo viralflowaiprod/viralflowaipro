@@ -68,19 +68,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Gere, agende e publique até 30 vídeos virais por dia automaticamente. Plataforma SaaS de automação de conteúdo com IA.",
       },
-      { property: "og:title", content: "ViralFlow — Automatize sua criação de conteúdo com IA" },
+      { property: "og:title", content: "ViralFlow — Conteúdo viral em escala" },
       {
         property: "og:description",
         content: "Gere, agende e publique vídeos virais automaticamente com IA.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "ViralFlow — Automatize sua criação de conteúdo com IA" },
-      { name: "description", content: "ViralFlow automates AI-powered content creation and distribution across multiple platforms." },
-      { property: "og:description", content: "ViralFlow automates AI-powered content creation and distribution across multiple platforms." },
-      { name: "twitter:description", content: "ViralFlow automates AI-powered content creation and distribution across multiple platforms." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c5b156b0-fadb-4a5a-a2c6-87cb4803add3/id-preview-18ef1a2b--0a079538-27a3-4885-94d8-d6bdee388b38.lovable.app-1780618875617.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c5b156b0-fadb-4a5a-a2c6-87cb4803add3/id-preview-18ef1a2b--0a079538-27a3-4885-94d8-d6bdee388b38.lovable.app-1780618875617.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
