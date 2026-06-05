@@ -23,6 +23,7 @@ import { Route as AuthenticatedGeneratorRouteImport } from './routes/_authentica
 import { Route as AuthenticatedGenerationRouteImport } from './routes/_authenticated/generation'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedActivateRouteImport } from './routes/_authenticated/activate'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
 import { Route as AuthenticatedSettingsIntegrationsRouteImport } from './routes/_authenticated/settings.integrations'
 
@@ -96,6 +97,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedActivateRoute = AuthenticatedActivateRouteImport.update({
+  id: '/activate',
+  path: '/activate',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAccountsRoute = AuthenticatedAccountsRouteImport.update({
   id: '/accounts',
   path: '/accounts',
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/activate': typeof AuthenticatedActivateRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/generation': typeof AuthenticatedGenerationRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/accounts': typeof AuthenticatedAccountsRoute
+  '/activate': typeof AuthenticatedActivateRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/generation': typeof AuthenticatedGenerationRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
+  '/_authenticated/activate': typeof AuthenticatedActivateRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/generation': typeof AuthenticatedGenerationRoute
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/accounts'
+    | '/activate'
     | '/admin'
     | '/dashboard'
     | '/generation'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/accounts'
+    | '/activate'
     | '/admin'
     | '/dashboard'
     | '/generation'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/_authenticated/accounts'
+    | '/_authenticated/activate'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/generation'
@@ -326,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/activate': {
+      id: '/_authenticated/activate'
+      path: '/activate'
+      fullPath: '/activate'
+      preLoaderRoute: typeof AuthenticatedActivateRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/accounts': {
       id: '/_authenticated/accounts'
       path: '/accounts'
@@ -345,6 +364,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
+  AuthenticatedActivateRoute: typeof AuthenticatedActivateRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGenerationRoute: typeof AuthenticatedGenerationRoute
@@ -357,6 +377,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
+  AuthenticatedActivateRoute: AuthenticatedActivateRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGenerationRoute: AuthenticatedGenerationRoute,
@@ -384,3 +405,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
