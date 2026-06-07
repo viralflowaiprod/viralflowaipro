@@ -5,8 +5,10 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 const PayloadSchema = z.object({
   niche: z.string().min(1).max(120),
   topic: z.string().min(1).max(500),
+  prompt: z.string().max(4000).optional().default(""),
+  reference_images: z.array(z.string().url()).max(6).optional().default([]),
   cta: z.string().max(200).optional().default(""),
-  platform: z.enum(["youtube", "instagram", "tiktok"]).default("youtube"),
+  platform: z.enum(["youtube", "instagram", "tiktok", "pinterest"]).default("youtube"),
   quantity: z.number().int().min(1).max(10).default(1),
 });
 
@@ -57,7 +59,7 @@ export const Route = createFileRoute("/api/generate-video")({
             { status: 400, headers: { ...cors, "Content-Type": "application/json" } },
           );
         }
-        const { niche, topic, cta, platform, quantity } = parsed.data;
+        const { niche, topic, prompt, reference_images, cta, platform, quantity } = parsed.data;
 
         // 1) Create job (pending)
         const { data: job, error: jobErr } = await supabaseAdmin
@@ -67,6 +69,8 @@ export const Route = createFileRoute("/api/generate-video")({
             niche,
             topic,
             theme: topic, // keep legacy column in sync
+            prompt,
+            reference_images,
             cta,
             platform,
             quantity,
@@ -99,7 +103,7 @@ export const Route = createFileRoute("/api/generate-video")({
           job_id: job.id,
           level: "info",
           message: `Job criado via /api/generate-video (${quantity} vídeo(s))`,
-          metadata: { platform, niche },
+          metadata: { platform, niche, images: reference_images.length },
         });
 
         // 3) Fire webhook to n8n (best-effort, non-blocking failure)
@@ -111,13 +115,17 @@ export const Route = createFileRoute("/api/generate-video")({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
+                action: "generate_video",
                 job_id: job.id,
                 user_id: userId,
                 niche,
                 topic,
+                prompt,
+                reference_images,
                 cta,
                 platform,
                 quantity,
+                callback_url: `${new URL(request.url).origin}/api/public/hooks/video-progress`,
               }),
             });
             webhookStatus = res.ok ? "sent" : "failed";

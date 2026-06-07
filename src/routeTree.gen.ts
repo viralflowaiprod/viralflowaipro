@@ -22,10 +22,12 @@ import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedGeneratorRouteImport } from './routes/_authenticated/generator'
 import { Route as AuthenticatedGenerationRouteImport } from './routes/_authenticated/generation'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAutomationRouteImport } from './routes/_authenticated/automation'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedActivateRouteImport } from './routes/_authenticated/activate'
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
 import { Route as AuthenticatedSettingsIntegrationsRouteImport } from './routes/_authenticated/settings.integrations'
+import { Route as ApiPublicHooksVideoProgressRouteImport } from './routes/api/public/hooks/video-progress'
 import { Route as ApiPublicWebhooksPaymentsProviderRouteImport } from './routes/api/public/webhooks/payments.$provider'
 
 const SignupRoute = SignupRouteImport.update({
@@ -93,6 +95,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAutomationRoute = AuthenticatedAutomationRouteImport.update({
+  id: '/automation',
+  path: '/automation',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -114,6 +121,12 @@ const AuthenticatedSettingsIntegrationsRoute =
     path: '/settings/integrations',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiPublicHooksVideoProgressRoute =
+  ApiPublicHooksVideoProgressRouteImport.update({
+    id: '/api/public/hooks/video-progress',
+    path: '/api/public/hooks/video-progress',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksPaymentsProviderRoute =
   ApiPublicWebhooksPaymentsProviderRouteImport.update({
     id: '/api/public/webhooks/payments/$provider',
@@ -130,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/accounts': typeof AuthenticatedAccountsRoute
   '/activate': typeof AuthenticatedActivateRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/automation': typeof AuthenticatedAutomationRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/generation': typeof AuthenticatedGenerationRoute
   '/generator': typeof AuthenticatedGeneratorRoute
@@ -138,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/schedule': typeof AuthenticatedScheduleRoute
   '/api/generate-video': typeof ApiGenerateVideoRoute
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
+  '/api/public/hooks/video-progress': typeof ApiPublicHooksVideoProgressRoute
   '/api/public/webhooks/payments/$provider': typeof ApiPublicWebhooksPaymentsProviderRoute
 }
 export interface FileRoutesByTo {
@@ -149,6 +164,7 @@ export interface FileRoutesByTo {
   '/accounts': typeof AuthenticatedAccountsRoute
   '/activate': typeof AuthenticatedActivateRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/automation': typeof AuthenticatedAutomationRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/generation': typeof AuthenticatedGenerationRoute
   '/generator': typeof AuthenticatedGeneratorRoute
@@ -157,6 +173,7 @@ export interface FileRoutesByTo {
   '/schedule': typeof AuthenticatedScheduleRoute
   '/api/generate-video': typeof ApiGenerateVideoRoute
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
+  '/api/public/hooks/video-progress': typeof ApiPublicHooksVideoProgressRoute
   '/api/public/webhooks/payments/$provider': typeof ApiPublicWebhooksPaymentsProviderRoute
 }
 export interface FileRoutesById {
@@ -170,6 +187,7 @@ export interface FileRoutesById {
   '/_authenticated/accounts': typeof AuthenticatedAccountsRoute
   '/_authenticated/activate': typeof AuthenticatedActivateRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/automation': typeof AuthenticatedAutomationRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/generation': typeof AuthenticatedGenerationRoute
   '/_authenticated/generator': typeof AuthenticatedGeneratorRoute
@@ -178,6 +196,7 @@ export interface FileRoutesById {
   '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
   '/api/generate-video': typeof ApiGenerateVideoRoute
   '/_authenticated/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
+  '/api/public/hooks/video-progress': typeof ApiPublicHooksVideoProgressRoute
   '/api/public/webhooks/payments/$provider': typeof ApiPublicWebhooksPaymentsProviderRoute
 }
 export interface FileRouteTypes {
@@ -191,6 +210,7 @@ export interface FileRouteTypes {
     | '/accounts'
     | '/activate'
     | '/admin'
+    | '/automation'
     | '/dashboard'
     | '/generation'
     | '/generator'
@@ -199,6 +219,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/api/generate-video'
     | '/settings/integrations'
+    | '/api/public/hooks/video-progress'
     | '/api/public/webhooks/payments/$provider'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -210,6 +231,7 @@ export interface FileRouteTypes {
     | '/accounts'
     | '/activate'
     | '/admin'
+    | '/automation'
     | '/dashboard'
     | '/generation'
     | '/generator'
@@ -218,6 +240,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/api/generate-video'
     | '/settings/integrations'
+    | '/api/public/hooks/video-progress'
     | '/api/public/webhooks/payments/$provider'
   id:
     | '__root__'
@@ -230,6 +253,7 @@ export interface FileRouteTypes {
     | '/_authenticated/accounts'
     | '/_authenticated/activate'
     | '/_authenticated/admin'
+    | '/_authenticated/automation'
     | '/_authenticated/dashboard'
     | '/_authenticated/generation'
     | '/_authenticated/generator'
@@ -238,6 +262,7 @@ export interface FileRouteTypes {
     | '/_authenticated/schedule'
     | '/api/generate-video'
     | '/_authenticated/settings/integrations'
+    | '/api/public/hooks/video-progress'
     | '/api/public/webhooks/payments/$provider'
   fileRoutesById: FileRoutesById
 }
@@ -249,6 +274,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   ApiGenerateVideoRoute: typeof ApiGenerateVideoRoute
+  ApiPublicHooksVideoProgressRoute: typeof ApiPublicHooksVideoProgressRoute
   ApiPublicWebhooksPaymentsProviderRoute: typeof ApiPublicWebhooksPaymentsProviderRoute
 }
 
@@ -345,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/automation': {
+      id: '/_authenticated/automation'
+      path: '/automation'
+      fullPath: '/automation'
+      preLoaderRoute: typeof AuthenticatedAutomationRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -373,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsIntegrationsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/hooks/video-progress': {
+      id: '/api/public/hooks/video-progress'
+      path: '/api/public/hooks/video-progress'
+      fullPath: '/api/public/hooks/video-progress'
+      preLoaderRoute: typeof ApiPublicHooksVideoProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/payments/$provider': {
       id: '/api/public/webhooks/payments/$provider'
       path: '/api/public/webhooks/payments/$provider'
@@ -387,6 +427,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAccountsRoute: typeof AuthenticatedAccountsRoute
   AuthenticatedActivateRoute: typeof AuthenticatedActivateRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAutomationRoute: typeof AuthenticatedAutomationRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGenerationRoute: typeof AuthenticatedGenerationRoute
   AuthenticatedGeneratorRoute: typeof AuthenticatedGeneratorRoute
@@ -400,6 +441,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountsRoute: AuthenticatedAccountsRoute,
   AuthenticatedActivateRoute: AuthenticatedActivateRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAutomationRoute: AuthenticatedAutomationRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGenerationRoute: AuthenticatedGenerationRoute,
   AuthenticatedGeneratorRoute: AuthenticatedGeneratorRoute,
@@ -422,6 +464,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   ApiGenerateVideoRoute: ApiGenerateVideoRoute,
+  ApiPublicHooksVideoProgressRoute: ApiPublicHooksVideoProgressRoute,
   ApiPublicWebhooksPaymentsProviderRoute:
     ApiPublicWebhooksPaymentsProviderRoute,
 }

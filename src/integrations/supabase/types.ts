@@ -22,6 +22,7 @@ export type Database = {
           expires_at: string | null
           external_order_id: string | null
           id: string
+          is_master: boolean
           plan_tier: string
           source: string
           status: string
@@ -36,6 +37,7 @@ export type Database = {
           expires_at?: string | null
           external_order_id?: string | null
           id?: string
+          is_master?: boolean
           plan_tier?: string
           source: string
           status?: string
@@ -50,6 +52,7 @@ export type Database = {
           expires_at?: string | null
           external_order_id?: string | null
           id?: string
+          is_master?: boolean
           plan_tier?: string
           source?: string
           status?: string
@@ -133,6 +136,45 @@ export type Database = {
           },
         ]
       }
+      automation_settings: {
+        Row: {
+          created_at: string
+          daily_quantity: number
+          enabled: boolean
+          id: string
+          mode: string
+          niche: string | null
+          platforms: Json
+          time_slots: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_quantity?: number
+          enabled?: boolean
+          id?: string
+          mode?: string
+          niche?: string | null
+          platforms?: Json
+          time_slots?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_quantity?: number
+          enabled?: boolean
+          id?: string
+          mode?: string
+          niche?: string | null
+          platforms?: Json
+          time_slots?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       connected_accounts: {
         Row: {
           access_token: string | null
@@ -178,6 +220,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          privacy_mode: string
           updated_at: string
         }
         Insert: {
@@ -185,6 +228,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          privacy_mode?: string
           updated_at?: string
         }
         Update: {
@@ -192,6 +236,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          privacy_mode?: string
           updated_at?: string
         }
         Relationships: []
@@ -319,7 +364,9 @@ export type Database = {
           payload: Json | null
           platform: string | null
           progress: number
+          prompt: string | null
           quantity: number
+          reference_images: Json
           status: string
           theme: string | null
           topic: string | null
@@ -336,7 +383,9 @@ export type Database = {
           payload?: Json | null
           platform?: string | null
           progress?: number
+          prompt?: string | null
           quantity?: number
+          reference_images?: Json
           status?: string
           theme?: string | null
           topic?: string | null
@@ -353,7 +402,9 @@ export type Database = {
           payload?: Json | null
           platform?: string | null
           progress?: number
+          prompt?: string | null
           quantity?: number
+          reference_images?: Json
           status?: string
           theme?: string | null
           topic?: string | null

@@ -66,8 +66,8 @@ export const redeemActivationCode = createServerFn({ method: "POST" })
     if (codeRow.expires_at && new Date(codeRow.expires_at) < new Date())
       throw new Error("Este código expirou.");
 
-    // marca código como usado
-    if (codeRow.status !== "used") {
+    // marca código como usado (códigos master podem ser reutilizados)
+    if (!codeRow.is_master && codeRow.status !== "used") {
       const { error: updErr } = await supabaseAdmin
         .from("activation_codes")
         .update({
