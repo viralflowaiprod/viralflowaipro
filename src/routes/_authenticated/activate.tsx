@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
-import { KeyRound, ShieldCheck, Loader2 } from "lucide-react";
+import { KeyRound, ShieldCheck, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/app-shell";
@@ -26,6 +26,7 @@ function ActivatePage() {
   const getStatus = useServerFn(getMySubscriptionStatus);
   const redeem = useServerFn(redeemActivationCode);
   const [code, setCode] = useState("");
+  const [showCode, setShowCode] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const { data: status } = useQuery({
@@ -79,11 +80,21 @@ function ActivatePage() {
                 <Input
                   id="code"
                   required
-                  className="pl-9 uppercase tracking-wider"
+                  type={showCode ? "text" : "password"}
+                  className="pl-9 pr-10 uppercase tracking-wider"
                   placeholder="VF-XXXX-XXXX-XXXX"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                 />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowCode((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                  aria-label={showCode ? "Esconder código" : "Mostrar código"}
+                >
+                  {showCode ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
               </div>
             </div>
             <Button
