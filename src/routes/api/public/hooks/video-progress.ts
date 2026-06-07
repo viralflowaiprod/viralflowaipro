@@ -34,7 +34,12 @@ export const Route = createFileRoute("/api/public/hooks/video-progress")({
         }
         const p = parsed.data;
 
-        const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
+        const update: {
+          updated_at: string;
+          progress?: number;
+          status?: string;
+          error_message?: string;
+        } = { updated_at: new Date().toISOString() };
         if (p.progress !== undefined) update.progress = p.progress;
         if (p.status) update.status = p.status;
         if (p.error) update.error_message = p.error;
