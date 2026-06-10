@@ -2,13 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
+const PLATFORM_IDS = ["youtube", "instagram", "tiktok", "kwai", "pinterest", "rumble"] as const;
+
 const PayloadSchema = z.object({
   niche: z.string().min(1).max(120),
   topic: z.string().min(1).max(500),
   prompt: z.string().max(4000).optional().default(""),
   reference_images: z.array(z.string().url()).max(6).optional().default([]),
   cta: z.string().max(200).optional().default(""),
-  platform: z.enum(["youtube", "instagram", "tiktok", "pinterest"]).default("youtube"),
+  platform: z.enum(PLATFORM_IDS).default("youtube"),
+  platforms: z.array(z.enum(PLATFORM_IDS)).max(6).optional().default([]),
+  lang: z.string().max(10).optional().default("pt-f"),
   quantity: z.number().int().min(1).max(10).default(1),
 });
 
