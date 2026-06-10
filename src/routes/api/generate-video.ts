@@ -63,7 +63,7 @@ export const Route = createFileRoute("/api/generate-video")({
             { status: 400, headers: { ...cors, "Content-Type": "application/json" } },
           );
         }
-        const { niche, topic, prompt, reference_images, cta, platform, quantity } = parsed.data;
+        const { niche, topic, prompt, reference_images, cta, platform, platforms, lang, quantity } = parsed.data;
 
         // 1) Create job (pending)
         const { data: job, error: jobErr } = await supabaseAdmin
