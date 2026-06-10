@@ -1,6 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState, type FormEvent, type ChangeEvent } from "react";
-import { Wand2, Loader2, ImagePlus, X, Sparkles } from "lucide-react";
+import {
+  Wand2,
+  Loader2,
+  ImagePlus,
+  X,
+  Sparkles,
+  Lock,
+  CheckCircle2,
+  Youtube,
+  Instagram,
+  Music2,
+  Video,
+  Pin,
+  Flame,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/app-shell";
@@ -9,13 +25,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/generator")({
@@ -24,17 +34,56 @@ export const Route = createFileRoute("/_authenticated/generator")({
 });
 
 const MAX_IMAGES = 6;
+const REQUIRED_PLATFORMS = 4;
+
+const PLATFORM_META = [
+  { id: "youtube", name: "YouTube", icon: Youtube, color: "text-red-500" },
+  { id: "instagram", name: "Instagram", icon: Instagram, color: "text-pink-500" },
+  { id: "tiktok", name: "TikTok", icon: Music2, color: "text-foreground" },
+  { id: "kwai", name: "Kwai", icon: Video, color: "text-orange-500" },
+  { id: "pinterest", name: "Pinterest", icon: Pin, color: "text-rose-500" },
+  { id: "rumble", name: "Rumble", icon: Flame, color: "text-emerald-500" },
+] as const;
 
 function Generator() {
   const [niche, setNiche] = useState("");
   const [topic, setTopic] = useState("");
   const [prompt, setPrompt] = useState("");
   const [cta, setCta] = useState("");
-  const [platform, setPlatform] = useState("youtube");
   const [quantity, setQuantity] = useState(1);
+  const [selected, setSelected] = useState<string[]>([]);
   const [images, setImages] = useState<{ path: string; url: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const { data: keys } = useQuery({
+    queryKey: ["my-api-keys"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("api_keys")
+        .select("provider, api_key, status");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const isConnected = (id: string) =>
+    !!keys?.find((k) => k.provider === id && k.api_key && k.status === "active");
+
+  const togglePlatform = (id: string) => {
+    if (!isConnected(id)) {
+      toast.error("Configure a API desta plataforma em Minhas APIs.");
+      return;
+    }
+    setSelected((prev) => {
+      if (prev.includes(id)) return prev.filter((p) => p !== id);
+      if (prev.length >= REQUIRED_PLATFORMS) {
+        toast.warning(`Escolha exatamente ${REQUIRED_PLATFORMS} plataformas.`);
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
 
   const onPickImages = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -82,15 +131,17 @@ function Generator() {
   const removeImage = async (idx: number) => {
     const target = images[idx];
     setImages((prev) => prev.filter((_, i) => i !== idx));
-    if (target?.path) {
-      await supabase.storage.from("user-media").remove([target.path]);
-    }
+    if (target?.path) await supabase.storage.from("user-media").remove([target.path]);
   };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!topic.trim() || !niche.trim()) {
       toast.error("Preencha nicho e tópico.");
+      return;
+    }
+    if (selected.length !== REQUIRED_PLATFORMS) {
+      toast.error(`Selecione exatamente ${REQUIRED_PLATFORMS} plataformas.`);
       return;
     }
     setSubmitting(true);
@@ -112,7 +163,8 @@ function Generator() {
           topic,
           prompt,
           cta,
-          platform,
+          platform: selected[0],
+          platforms: selected,
           quantity,
           reference_images: images.map((i) => i.url),
         }),
@@ -124,7 +176,7 @@ function Generator() {
       }
       toast.success(
         json.webhook === "sent"
-          ? "Pipeline disparado! Acompanhe em Processamento."
+          ? "Pipeline disparado! Acompanhe em Processando."
           : "Job criado. (n8n indisponível — verifique o webhook.)",
       );
       setPrompt("");
@@ -180,9 +232,6 @@ function Generator() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">
-              Quanto mais detalhado, melhor o resultado da IA.
-            </p>
           </div>
 
           <div className="space-y-2">
@@ -230,24 +279,76 @@ function Generator() {
                 </label>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Até {MAX_IMAGES} imagens (máx 8MB cada). Armazenadas de forma privada.
-            </p>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Plataforma</Label>
-              <Select value={platform} onValueChange={setPlatform}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="youtube">YouTube Shorts</SelectItem>
-                  <SelectItem value="instagram">Instagram Reels</SelectItem>
-                  <SelectItem value="tiktok">TikTok</SelectItem>
-                  <SelectItem value="pinterest">Pinterest</SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Platform selection — exactly 4 */}
+          <div className="space-y-2">
+            <Label className="flex items-center justify-between">
+              <span>Publicar em (escolha {REQUIRED_PLATFORMS})</span>
+              <span className="text-xs text-muted-foreground">
+                {selected.length}/{REQUIRED_PLATFORMS}
+              </span>
+            </Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {PLATFORM_META.map((p) => {
+                const connected = isConnected(p.id);
+                const active = selected.includes(p.id);
+                return (
+                  <button
+                    type="button"
+                    key={p.id}
+                    onClick={() => togglePlatform(p.id)}
+                    className={cn(
+                      "relative flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm text-left transition",
+                      active
+                        ? "border-primary bg-primary/10 shadow-glow"
+                        : "border-border/60 hover:bg-muted/30",
+                      !connected && "opacity-60",
+                    )}
+                  >
+                    <p.icon className={`size-4 ${p.color}`} />
+                    <span className="flex-1 truncate">{p.name}</span>
+                    {!connected ? (
+                      <Lock className="size-3.5 text-muted-foreground" />
+                    ) : active ? (
+                      <CheckCircle2 className="size-4 text-primary-glow" />
+                    ) : null}
+                  </button>
+                );
+              })}
             </div>
+            {selected.length > 0 && (
+              <div className="rounded-lg border border-border/60 bg-background/40 p-3 mt-2">
+                <div className="text-xs text-muted-foreground mb-2">Pré-visualização</div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {selected.map((id) => {
+                    const meta = PLATFORM_META.find((p) => p.id === id)!;
+                    return (
+                      <div
+                        key={id}
+                        className="rounded-md border border-border/60 bg-card p-2"
+                      >
+                        <div className="aspect-[9/16] rounded bg-muted/40 grid place-items-center mb-1.5">
+                          <meta.icon className={`size-6 ${meta.color}`} />
+                        </div>
+                        <div className="text-[11px] font-medium truncate">
+                          {topic || "Seu título"}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">{meta.name}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {keys && keys.length === 0 && (
+              <Link to="/settings/integrations" className="text-xs text-primary-glow hover:underline">
+                Você ainda não cadastrou nenhuma API → configurar agora
+              </Link>
+            )}
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="qty">Quantidade</Label>
               <Input
@@ -256,7 +357,9 @@ function Generator() {
                 min={1}
                 max={10}
                 value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Math.min(10, Number(e.target.value) || 1)))}
+                onChange={(e) =>
+                  setQuantity(Math.max(1, Math.min(10, Number(e.target.value) || 1)))
+                }
               />
             </div>
             <div className="space-y-2">
