@@ -287,10 +287,12 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          buyer_email: string | null
           cancelled_at: string | null
           code_id: string | null
           created_at: string
           current_period_end: string | null
+          external_order_id: string | null
           id: string
           plan_tier: string
           source: string | null
@@ -299,10 +301,12 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          buyer_email?: string | null
           cancelled_at?: string | null
           code_id?: string | null
           created_at?: string
           current_period_end?: string | null
+          external_order_id?: string | null
           id?: string
           plan_tier?: string
           source?: string | null
@@ -311,10 +315,12 @@ export type Database = {
           user_id: string
         }
         Update: {
+          buyer_email?: string | null
           cancelled_at?: string | null
           code_id?: string | null
           created_at?: string
           current_period_end?: string | null
+          external_order_id?: string | null
           id?: string
           plan_tier?: string
           source?: string | null
