@@ -9,8 +9,6 @@ import {
   Video,
   Pin,
   Flame,
-  Webhook,
-  Copy,
   Save,
   Loader2,
   CheckCircle2,
@@ -23,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -175,17 +172,6 @@ function UserApiKeysPage() {
     }
   };
 
-  // Kiwify webhook URL — origin do app
-  const [origin, setOrigin] = useState("");
-  useEffect(() => {
-    if (typeof window !== "undefined") setOrigin(window.location.origin);
-  }, []);
-  const kiwifyUrl = `${origin}/api/public/webhooks/payments/kiwify`;
-
-  const copy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text).then(() => toast.success(`${label} copiado!`));
-  };
-
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto space-y-6">
       <PageHeader
@@ -258,27 +244,6 @@ function UserApiKeysPage() {
           );
         })}
       </div>
-
-      <Card className="p-5 bg-gradient-surface border-border/60 shadow-card">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="size-10 rounded-lg bg-background/60 grid place-items-center">
-            <Webhook className="size-5 text-primary-glow" />
-          </div>
-          <div>
-            <div className="font-medium">Kiwify — Webhook de Assinatura</div>
-            <div className="text-xs text-muted-foreground">
-              Cole esta URL no painel da Kiwify (Compra Aprovada e Cancelamento)
-              para liberar/bloquear o acesso automaticamente.
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Input readOnly value={kiwifyUrl} className="font-mono text-xs" />
-          <Button variant="outline" onClick={() => copy(kiwifyUrl, "URL")}>
-            <Copy className="size-4" />
-          </Button>
-        </div>
-      </Card>
 
       <Card className="p-4 border-primary/20 bg-primary/5 text-sm">
         <strong>Segurança:</strong> suas chaves são privadas (RLS no banco) — só
