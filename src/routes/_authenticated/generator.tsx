@@ -283,14 +283,15 @@ function Generator() {
             </div>
           </div>
 
-          {/* Platform selection — exactly 4 */}
+          {/* Platform selection — qualquer quantidade (1 ou mais) */}
           <div className="space-y-2">
             <Label className="flex items-center justify-between">
-              <span>Publicar em (escolha {REQUIRED_PLATFORMS})</span>
+              <span>Publicar em (1 ou mais)</span>
               <span className="text-xs text-muted-foreground">
-                {selected.length}/{REQUIRED_PLATFORMS}
+                {selected.length}/{MAX_PLATFORMS}
               </span>
             </Label>
+
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {PLATFORM_META.map((p) => {
                 const connected = isConnected(p.id);
