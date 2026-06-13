@@ -28,6 +28,7 @@ import { Route as AuthenticatedActivateRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAccountsRouteImport } from './routes/_authenticated/accounts'
 import { Route as AuthenticatedSettingsIntegrationsRouteImport } from './routes/_authenticated/settings.integrations'
 import { Route as ApiPublicHooksVideoProgressRouteImport } from './routes/api/public/hooks/video-progress'
+import { Route as ApiPublicHooksAutomationPlanRouteImport } from './routes/api/public/hooks/automation-plan'
 import { Route as ApiPublicWebhooksPaymentsProviderRouteImport } from './routes/api/public/webhooks/payments.$provider'
 
 const SignupRoute = SignupRouteImport.update({
@@ -127,6 +128,12 @@ const ApiPublicHooksVideoProgressRoute =
     path: '/api/public/hooks/video-progress',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutomationPlanRoute =
+  ApiPublicHooksAutomationPlanRouteImport.update({
+    id: '/api/public/hooks/automation-plan',
+    path: '/api/public/hooks/automation-plan',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksPaymentsProviderRoute =
   ApiPublicWebhooksPaymentsProviderRouteImport.update({
     id: '/api/public/webhooks/payments/$provider',
@@ -152,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/schedule': typeof AuthenticatedScheduleRoute
   '/api/generate-video': typeof ApiGenerateVideoRoute
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
+  '/api/public/hooks/automation-plan': typeof ApiPublicHooksAutomationPlanRoute
   '/api/public/hooks/video-progress': typeof ApiPublicHooksVideoProgressRoute
   '/api/public/webhooks/payments/$provider': typeof ApiPublicWebhooksPaymentsProviderRoute
 }
@@ -173,6 +181,7 @@ export interface FileRoutesByTo {
   '/schedule': typeof AuthenticatedScheduleRoute
   '/api/generate-video': typeof ApiGenerateVideoRoute
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
+  '/api/public/hooks/automation-plan': typeof ApiPublicHooksAutomationPlanRoute
   '/api/public/hooks/video-progress': typeof ApiPublicHooksVideoProgressRoute
   '/api/public/webhooks/payments/$provider': typeof ApiPublicWebhooksPaymentsProviderRoute
 }
@@ -196,6 +205,7 @@ export interface FileRoutesById {
   '/_authenticated/schedule': typeof AuthenticatedScheduleRoute
   '/api/generate-video': typeof ApiGenerateVideoRoute
   '/_authenticated/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
+  '/api/public/hooks/automation-plan': typeof ApiPublicHooksAutomationPlanRoute
   '/api/public/hooks/video-progress': typeof ApiPublicHooksVideoProgressRoute
   '/api/public/webhooks/payments/$provider': typeof ApiPublicWebhooksPaymentsProviderRoute
 }
@@ -219,6 +229,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/api/generate-video'
     | '/settings/integrations'
+    | '/api/public/hooks/automation-plan'
     | '/api/public/hooks/video-progress'
     | '/api/public/webhooks/payments/$provider'
   fileRoutesByTo: FileRoutesByTo
@@ -240,6 +251,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/api/generate-video'
     | '/settings/integrations'
+    | '/api/public/hooks/automation-plan'
     | '/api/public/hooks/video-progress'
     | '/api/public/webhooks/payments/$provider'
   id:
@@ -262,6 +274,7 @@ export interface FileRouteTypes {
     | '/_authenticated/schedule'
     | '/api/generate-video'
     | '/_authenticated/settings/integrations'
+    | '/api/public/hooks/automation-plan'
     | '/api/public/hooks/video-progress'
     | '/api/public/webhooks/payments/$provider'
   fileRoutesById: FileRoutesById
@@ -274,6 +287,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   ApiGenerateVideoRoute: typeof ApiGenerateVideoRoute
+  ApiPublicHooksAutomationPlanRoute: typeof ApiPublicHooksAutomationPlanRoute
   ApiPublicHooksVideoProgressRoute: typeof ApiPublicHooksVideoProgressRoute
   ApiPublicWebhooksPaymentsProviderRoute: typeof ApiPublicWebhooksPaymentsProviderRoute
 }
@@ -413,6 +427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksVideoProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/automation-plan': {
+      id: '/api/public/hooks/automation-plan'
+      path: '/api/public/hooks/automation-plan'
+      fullPath: '/api/public/hooks/automation-plan'
+      preLoaderRoute: typeof ApiPublicHooksAutomationPlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/payments/$provider': {
       id: '/api/public/webhooks/payments/$provider'
       path: '/api/public/webhooks/payments/$provider'
@@ -464,6 +485,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   ApiGenerateVideoRoute: ApiGenerateVideoRoute,
+  ApiPublicHooksAutomationPlanRoute: ApiPublicHooksAutomationPlanRoute,
   ApiPublicHooksVideoProgressRoute: ApiPublicHooksVideoProgressRoute,
   ApiPublicWebhooksPaymentsProviderRoute:
     ApiPublicWebhooksPaymentsProviderRoute,

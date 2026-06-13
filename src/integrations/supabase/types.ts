@@ -140,9 +140,11 @@ export type Database = {
         Row: {
           continuous_monthly: boolean
           created_at: string
+          current_job_id: string | null
           daily_quantity: number
           enabled: boolean
           id: string
+          last_resume_at: string | null
           mode: string
           niche: string | null
           paused: boolean
@@ -155,9 +157,11 @@ export type Database = {
         Insert: {
           continuous_monthly?: boolean
           created_at?: string
+          current_job_id?: string | null
           daily_quantity?: number
           enabled?: boolean
           id?: string
+          last_resume_at?: string | null
           mode?: string
           niche?: string | null
           paused?: boolean
@@ -170,9 +174,11 @@ export type Database = {
         Update: {
           continuous_monthly?: boolean
           created_at?: string
+          current_job_id?: string | null
           daily_quantity?: number
           enabled?: boolean
           id?: string
+          last_resume_at?: string | null
           mode?: string
           niche?: string | null
           paused?: boolean
