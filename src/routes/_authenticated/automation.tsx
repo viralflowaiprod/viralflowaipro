@@ -181,6 +181,48 @@ function AutomationPage() {
         subtitle="Configure publicação automática diária em todas as suas redes"
       />
 
+      {plan && (
+        <Card className="p-5 bg-gradient-surface border-border/60 shadow-card">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">Status</div>
+              <div className="font-display font-semibold mt-0.5 flex items-center gap-2">
+                {plan.paused ? (
+                  <><Pause className="size-4" /> Pausada</>
+                ) : plan.enabled ? (
+                  <><Play className="size-4 text-primary-glow" /> Em produção</>
+                ) : (
+                  <>Desligada</>
+                )}
+                {plan.current_job_id && (
+                  <Badge variant="secondary">Processando 1 vídeo</Badge>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-display font-semibold">{plan.today_used}</div>
+                <div className="text-[10px] uppercase text-muted-foreground">Hoje</div>
+              </div>
+              <div>
+                <div className="text-2xl font-display font-semibold">{plan.today_remaining}</div>
+                <div className="text-[10px] uppercase text-muted-foreground">Restantes</div>
+              </div>
+              <div>
+                <div className="text-2xl font-display font-semibold">{plan.daily_limit}</div>
+                <div className="text-[10px] uppercase text-muted-foreground">Limite/dia</div>
+              </div>
+            </div>
+          </div>
+          {plan.plan.length > 0 && (
+            <p className="text-xs text-muted-foreground mt-3">
+              Próximos {plan.plan.length} slots planejados (sem duplicar dia/horário).
+            </p>
+          )}
+        </Card>
+      )}
+
+
       <Card className="p-6 bg-gradient-surface border-border/60 shadow-card space-y-5">
         <div className="flex items-center justify-between">
           <div>
