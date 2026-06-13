@@ -138,37 +138,46 @@ export type Database = {
       }
       automation_settings: {
         Row: {
+          continuous_monthly: boolean
           created_at: string
           daily_quantity: number
           enabled: boolean
           id: string
           mode: string
           niche: string | null
+          paused: boolean
           platforms: Json
+          seed_idea: string | null
           time_slots: Json
           updated_at: string
           user_id: string
         }
         Insert: {
+          continuous_monthly?: boolean
           created_at?: string
           daily_quantity?: number
           enabled?: boolean
           id?: string
           mode?: string
           niche?: string | null
+          paused?: boolean
           platforms?: Json
+          seed_idea?: string | null
           time_slots?: Json
           updated_at?: string
           user_id: string
         }
         Update: {
+          continuous_monthly?: boolean
           created_at?: string
           daily_quantity?: number
           enabled?: boolean
           id?: string
           mode?: string
           niche?: string | null
+          paused?: boolean
           platforms?: Json
+          seed_idea?: string | null
           time_slots?: Json
           updated_at?: string
           user_id?: string

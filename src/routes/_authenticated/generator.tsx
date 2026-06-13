@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/generator")({
 });
 
 const MAX_IMAGES = 6;
-const REQUIRED_PLATFORMS = 4;
+const MAX_PLATFORMS = 6;
 
 const PLATFORM_META = [
   { id: "youtube", name: "YouTube", icon: Youtube, color: "text-red-500" },
@@ -77,13 +77,14 @@ function Generator() {
     }
     setSelected((prev) => {
       if (prev.includes(id)) return prev.filter((p) => p !== id);
-      if (prev.length >= REQUIRED_PLATFORMS) {
-        toast.warning(`Escolha exatamente ${REQUIRED_PLATFORMS} plataformas.`);
+      if (prev.length >= MAX_PLATFORMS) {
+        toast.warning(`Máximo de ${MAX_PLATFORMS} plataformas.`);
         return prev;
       }
       return [...prev, id];
     });
   };
+
 
   const onPickImages = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -140,10 +141,11 @@ function Generator() {
       toast.error("Preencha nicho e tópico.");
       return;
     }
-    if (selected.length !== REQUIRED_PLATFORMS) {
-      toast.error(`Selecione exatamente ${REQUIRED_PLATFORMS} plataformas.`);
+    if (selected.length < 1) {
+      toast.error("Selecione ao menos 1 plataforma.");
       return;
     }
+
     setSubmitting(true);
     try {
       const { data: s } = await supabase.auth.getSession();
@@ -281,14 +283,15 @@ function Generator() {
             </div>
           </div>
 
-          {/* Platform selection — exactly 4 */}
+          {/* Platform selection — qualquer quantidade (1 ou mais) */}
           <div className="space-y-2">
             <Label className="flex items-center justify-between">
-              <span>Publicar em (escolha {REQUIRED_PLATFORMS})</span>
+              <span>Publicar em (1 ou mais)</span>
               <span className="text-xs text-muted-foreground">
-                {selected.length}/{REQUIRED_PLATFORMS}
+                {selected.length}/{MAX_PLATFORMS}
               </span>
             </Label>
+
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {PLATFORM_META.map((p) => {
                 const connected = isConnected(p.id);

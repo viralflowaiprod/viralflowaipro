@@ -10,8 +10,9 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Gere, agende e publique até 30 vídeos virais por dia automaticamente. Plataforma SaaS de automação de conteúdo.",
+          "Gere, agende e publique até 80 vídeos virais por dia automaticamente. Plataforma SaaS de automação de conteúdo.",
       },
+
     ],
   }),
   component: Landing,
@@ -21,7 +22,7 @@ const features = [
   {
     icon: Video,
     title: "Geração automática",
-    desc: "Até 30 vídeos por dia gerados com IA — hook, roteiro, voz e legendas.",
+    desc: "Até 80 vídeos por dia gerados com IA — hook, roteiro, voz e legendas.",
   },
   {
     icon: Calendar,
@@ -56,10 +57,8 @@ function Landing() {
             <Link to="/login">
               <Button variant="ghost" size="sm">Entrar</Button>
             </Link>
-            <Link to="/signup">
-              <Button size="sm" className="bg-gradient-primary shadow-glow">Começar grátis</Button>
-            </Link>
           </nav>
+
         </div>
       </header>
 
@@ -75,21 +74,17 @@ function Landing() {
             Conteúdo viral em <span className="text-gradient">piloto automático</span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Gere até 30 vídeos virais por dia, programe e publique em todas as plataformas —
+            Gere até 80 vídeos virais por dia, programe e publique em todas as plataformas —
             sem editor, sem complicação.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/signup">
-              <Button size="lg" className="bg-gradient-primary shadow-glow text-base">
-                Começar grátis <ArrowRight className="ml-2 size-4" />
-              </Button>
-            </Link>
             <Link to="/login">
               <Button size="lg" variant="outline" className="text-base">
-                Já tenho conta
+                Acessar minha conta <ArrowRight className="ml-2 size-4" />
               </Button>
             </Link>
           </div>
+
         </div>
       </section>
 
