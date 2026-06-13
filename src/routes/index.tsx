@@ -10,8 +10,9 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Gere, agende e publique até 30 vídeos virais por dia automaticamente. Plataforma SaaS de automação de conteúdo.",
+          "Gere, agende e publique até 80 vídeos virais por dia automaticamente. Plataforma SaaS de automação de conteúdo.",
       },
+
     ],
   }),
   component: Landing,
