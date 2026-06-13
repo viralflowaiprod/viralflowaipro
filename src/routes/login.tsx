@@ -60,9 +60,9 @@ function LoginPage() {
         </Button>
       </form>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Ainda não tem conta?{" "}
-        <Link to="/signup" className="text-primary-glow hover:underline">Cadastre-se</Link>
+        Acesso liberado automaticamente após confirmação do pagamento.
       </p>
+
     </AuthShell>
   );
 }
