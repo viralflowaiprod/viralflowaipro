@@ -61,8 +61,9 @@ export const setAutomationPaused = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ paused: z.boolean() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const patch: Record<string, unknown> = { paused: data.paused };
+    const patch: { paused: boolean; last_resume_at?: string } = { paused: data.paused };
     if (!data.paused) patch.last_resume_at = new Date().toISOString();
+
     const { error } = await supabase
       .from("automation_settings")
       .update(patch)
