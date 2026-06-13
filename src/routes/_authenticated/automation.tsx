@@ -40,6 +40,7 @@ function AutomationPage() {
   const qc = useQueryClient();
   const getFn = useServerFn(getAutomationSettings);
   const saveFn = useServerFn(saveAutomationSettings);
+  const pauseFn = useServerFn(setAutomationPaused);
   const privFn = useServerFn(updatePrivacyMode);
 
   const { data, isLoading } = useQuery({
@@ -48,25 +49,34 @@ function AutomationPage() {
   });
 
   const [enabled, setEnabled] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [continuousMonthly, setContinuousMonthly] = useState(false);
   const [mode, setMode] = useState<"auto" | "manual">("auto");
-  const [dailyQuantity, setDailyQuantity] = useState(36);
+  const [seedIdea, setSeedIdea] = useState("");
+  const [dailyQuantity, setDailyQuantity] = useState(8);
   const [niche, setNiche] = useState("");
   const [platforms, setPlatforms] = useState<string[]>([...ALL_PLATFORMS]);
   const [slotsText, setSlotsText] = useState("08:00,10:00,12:00,14:00,16:00,18:00,20:00,22:00");
   const [privacy, setPrivacy] = useState<"save_all" | "ephemeral">("save_all");
   const [saving, setSaving] = useState(false);
+  const [pausing, setPausing] = useState(false);
 
   useEffect(() => {
     if (!data) return;
-    setEnabled(!!data.enabled);
-    setMode((data.mode as "auto" | "manual") ?? "auto");
-    setDailyQuantity(data.daily_quantity ?? 36);
-    setNiche(data.niche ?? "");
-    setPlatforms(Array.isArray(data.platforms) ? (data.platforms as string[]) : [...ALL_PLATFORMS]);
+    const d = data as Record<string, unknown>;
+    setEnabled(!!d.enabled);
+    setPaused(!!d.paused);
+    setContinuousMonthly(!!d.continuous_monthly);
+    setMode((d.mode as "auto" | "manual") ?? "auto");
+    setSeedIdea((d.seed_idea as string | null) ?? "");
+    setDailyQuantity((d.daily_quantity as number) ?? 8);
+    setNiche((d.niche as string | null) ?? "");
+    setPlatforms(Array.isArray(d.platforms) ? (d.platforms as string[]) : [...ALL_PLATFORMS]);
     setSlotsText(
-      Array.isArray(data.time_slots) ? (data.time_slots as string[]).join(",") : slotsText,
+      Array.isArray(d.time_slots) ? (d.time_slots as string[]).join(",") : slotsText,
     );
   }, [data]);
+
 
   useEffect(() => {
     const load = async () => {
