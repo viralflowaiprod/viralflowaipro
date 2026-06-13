@@ -116,11 +116,14 @@ function AutomationPage() {
       await saveFn({
         data: {
           enabled,
+          paused,
+          continuous_monthly: continuousMonthly,
           mode,
           daily_quantity: dailyQuantity,
           platforms,
           time_slots: slots,
           niche: niche.trim() || null,
+          seed_idea: seedIdea.trim() || null,
         },
       });
       await privFn({ data: { privacy_mode: privacy } });
@@ -132,6 +135,26 @@ function AutomationPage() {
       setSaving(false);
     }
   };
+
+  const togglePause = async () => {
+    setPausing(true);
+    try {
+      const next = !paused;
+      await pauseFn({ data: { paused: next } });
+      setPaused(next);
+      await qc.invalidateQueries({ queryKey: ["automation-settings"] });
+      toast.success(
+        next
+          ? "Produção pausada. Os vídeos em andamento serão finalizados; novos não iniciarão."
+          : "Produção retomada.",
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erro ao alterar pausa.");
+    } finally {
+      setPausing(false);
+    }
+  };
+
 
   if (isLoading) {
     return (
