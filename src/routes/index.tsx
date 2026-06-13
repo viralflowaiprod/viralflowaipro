@@ -22,7 +22,7 @@ const features = [
   {
     icon: Video,
     title: "Geração automática",
-    desc: "Até 30 vídeos por dia gerados com IA — hook, roteiro, voz e legendas.",
+    desc: "Até 80 vídeos por dia gerados com IA — hook, roteiro, voz e legendas.",
   },
   {
     icon: Calendar,
