@@ -66,7 +66,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Gere, agende e publique até 30 vídeos virais por dia automaticamente. Plataforma SaaS de automação de conteúdo com IA.",
+          "Gere, agende e publique até 80 vídeos virais por dia automaticamente. Plataforma SaaS de automação de conteúdo com IA.",
       },
       { property: "og:title", content: "ViralFlow — Conteúdo viral em escala" },
       {
