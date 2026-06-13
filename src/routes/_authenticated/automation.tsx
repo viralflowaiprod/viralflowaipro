@@ -22,10 +22,12 @@ import {
 } from "@/components/ui/select";
 import {
   getAutomationSettings,
+  getProductionPlan,
   saveAutomationSettings,
   setAutomationPaused,
   updatePrivacyMode,
 } from "@/lib/automation.functions";
+
 import { supabase } from "@/integrations/supabase/client";
 
 
