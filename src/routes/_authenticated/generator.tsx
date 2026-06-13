@@ -77,13 +77,14 @@ function Generator() {
     }
     setSelected((prev) => {
       if (prev.includes(id)) return prev.filter((p) => p !== id);
-      if (prev.length >= REQUIRED_PLATFORMS) {
-        toast.warning(`Escolha exatamente ${REQUIRED_PLATFORMS} plataformas.`);
+      if (prev.length >= MAX_PLATFORMS) {
+        toast.warning(`Máximo de ${MAX_PLATFORMS} plataformas.`);
         return prev;
       }
       return [...prev, id];
     });
   };
+
 
   const onPickImages = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
