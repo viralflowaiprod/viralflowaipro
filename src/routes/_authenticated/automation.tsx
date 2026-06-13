@@ -44,11 +44,19 @@ function AutomationPage() {
   const saveFn = useServerFn(saveAutomationSettings);
   const pauseFn = useServerFn(setAutomationPaused);
   const privFn = useServerFn(updatePrivacyMode);
+  const planFn = useServerFn(getProductionPlan);
 
   const { data, isLoading } = useQuery({
     queryKey: ["automation-settings"],
     queryFn: () => getFn(),
   });
+
+  const { data: plan } = useQuery({
+    queryKey: ["automation-plan"],
+    queryFn: () => planFn(),
+    refetchInterval: 30_000,
+  });
+
 
   const [enabled, setEnabled] = useState(false);
   const [paused, setPaused] = useState(false);
