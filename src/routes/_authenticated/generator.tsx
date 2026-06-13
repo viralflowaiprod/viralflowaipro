@@ -141,10 +141,11 @@ function Generator() {
       toast.error("Preencha nicho e tópico.");
       return;
     }
-    if (selected.length !== REQUIRED_PLATFORMS) {
-      toast.error(`Selecione exatamente ${REQUIRED_PLATFORMS} plataformas.`);
+    if (selected.length < 1) {
+      toast.error("Selecione ao menos 1 plataforma.");
       return;
     }
+
     setSubmitting(true);
     try {
       const { data: s } = await supabase.auth.getSession();
