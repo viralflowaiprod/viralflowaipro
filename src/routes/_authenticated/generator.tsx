@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/generator")({
 });
 
 const MAX_IMAGES = 6;
-const REQUIRED_PLATFORMS = 4;
+const MAX_PLATFORMS = 6;
 
 const PLATFORM_META = [
   { id: "youtube", name: "YouTube", icon: Youtube, color: "text-red-500" },
