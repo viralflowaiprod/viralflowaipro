@@ -57,10 +57,8 @@ function Landing() {
             <Link to="/login">
               <Button variant="ghost" size="sm">Entrar</Button>
             </Link>
-            <Link to="/signup">
-              <Button size="sm" className="bg-gradient-primary shadow-glow">Começar grátis</Button>
-            </Link>
           </nav>
+
         </div>
       </header>
 
