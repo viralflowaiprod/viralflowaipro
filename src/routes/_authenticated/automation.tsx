@@ -176,6 +176,7 @@ function AutomationPage() {
           <div>
             <div className="font-display font-semibold flex items-center gap-2">
               <Repeat className="size-4 text-primary-glow" /> Automação diária
+              {paused && <Badge variant="secondary">Pausada</Badge>}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Quando ativada, o ViralFlow gera e publica vídeos automaticamente.
@@ -184,31 +185,83 @@ function AutomationPage() {
           <Switch checked={enabled} onCheckedChange={setEnabled} />
         </div>
 
+        <Button
+          type="button"
+          variant={paused ? "default" : "outline"}
+          onClick={togglePause}
+          disabled={pausing}
+          className={paused ? "w-full bg-gradient-primary shadow-glow" : "w-full"}
+        >
+          {pausing ? (
+            <Loader2 className="size-4 mr-2 animate-spin" />
+          ) : paused ? (
+            <Play className="size-4 mr-2" />
+          ) : (
+            <Pause className="size-4 mr-2" />
+          )}
+          {paused ? "Retomar produção" : "Pausar produção"}
+        </Button>
+        <p className="text-xs text-muted-foreground -mt-2">
+          Ao pausar: finaliza o vídeo atual, conclui o upload em andamento e mantém a fila salva para retomar depois.
+        </p>
+
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Modo</Label>
+            <Label>Modo de produção</Label>
             <Select value={mode} onValueChange={(v) => setMode(v as "auto" | "manual")}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="auto">Automático (gera e publica)</SelectItem>
-                <SelectItem value="manual">Manual (gera, você aprova)</SelectItem>
+                <SelectItem value="manual">Manual — preencho cada vídeo</SelectItem>
+                <SelectItem value="auto">Produção Automática — IA continua a partir da minha ideia</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="qty">Vídeos por dia</Label>
+            <Label htmlFor="qty">Vídeos por dia (até 80)</Label>
             <Input
               id="qty"
               type="number"
               min={1}
-              max={100}
+              max={80}
               value={dailyQuantity}
               onChange={(e) =>
-                setDailyQuantity(Math.max(1, Math.min(100, Number(e.target.value) || 1)))
+                setDailyQuantity(Math.max(1, Math.min(80, Number(e.target.value) || 1)))
               }
             />
           </div>
         </div>
+
+        {mode === "auto" && (
+          <div className="space-y-2">
+            <Label htmlFor="seed" className="flex items-center gap-2">
+              <Sparkles className="size-4 text-primary-glow" />
+              Primeira ideia (semente)
+            </Label>
+            <Textarea
+              id="seed"
+              rows={3}
+              placeholder="Ex: vídeos de curiosidades históricas com tom misterioso e narração curta"
+              value={seedIdea}
+              onChange={(e) => setSeedIdea(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              A IA usa essa ideia como contexto e gera automaticamente os próximos vídeos mantendo o mesmo nicho e estratégia.
+            </p>
+          </div>
+        )}
+
+        <div className="flex items-start justify-between rounded-lg border border-border/60 p-3">
+          <div>
+            <div className="font-medium text-sm flex items-center gap-2">
+              <CalendarRange className="size-4 text-primary-glow" /> Produção contínua mensal
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Após agendar os vídeos do dia, continua produzindo e agendando para os próximos dias até completar o mês.
+            </p>
+          </div>
+          <Switch checked={continuousMonthly} onCheckedChange={setContinuousMonthly} />
+        </div>
+
 
         <div className="space-y-2">
           <Label htmlFor="niche">Nicho padrão</Label>
