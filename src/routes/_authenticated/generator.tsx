@@ -55,6 +55,12 @@ function Generator() {
   const [images, setImages] = useState<{ path: string; url: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [pollState, setPollState] = useState<{
+    status: string;
+    progress: number | null;
+    video_url: string | null;
+    srt_url: string | null;
+  } | null>(null);
 
   const { data: keys } = useQuery({
     queryKey: ["my-api-keys"],
