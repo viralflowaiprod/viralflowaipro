@@ -153,6 +153,7 @@ function Generator() {
     }
 
     setSubmitting(true);
+    setPollState(null);
     try {
       const { data: s } = await supabase.auth.getSession();
       const token = s.session?.access_token;
@@ -175,18 +176,47 @@ function Generator() {
           platforms: selected,
           quantity,
           reference_images: images.map((i) => i.url),
+          image_count: 8,
         }),
       });
       const json = await res.json();
-      if (!res.ok) {
+      if (!res.ok || !json.external_job_id) {
         toast.error(json.error ?? "Falha ao disparar geração.");
         return;
       }
-      toast.success(
-        json.webhook === "sent"
-          ? "Pipeline disparado! Acompanhe em Processando."
-          : "Job criado. (n8n indisponível — verifique o webhook.)",
-      );
+      const externalId: string = json.external_job_id;
+      toast.success(`Job enviado (${externalId.slice(0, 8)}…). Aguardando vídeo…`);
+      setPollState({ status: "processing", progress: 0, video_url: null, srt_url: null });
+
+      // Polling every 4s, up to ~10 min
+      const start = Date.now();
+      const maxMs = 10 * 60 * 1000;
+      while (Date.now() - start < maxMs) {
+        await new Promise((r) => setTimeout(r, 4000));
+        try {
+          const sres = await fetch(`/api/video-status/${encodeURIComponent(externalId)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const sjson = await sres.json();
+          setPollState({
+            status: sjson.status ?? "processing",
+            progress: sjson.progress ?? null,
+            video_url: sjson.video_url ?? null,
+            srt_url: sjson.srt_url ?? null,
+          });
+          if (sjson.status === "done" && sjson.video_url) {
+            toast.success("Vídeo pronto!");
+            break;
+          }
+          if (sjson.status === "failed" || sjson.status === "error") {
+            toast.error("Falha ao gerar vídeo no servidor.");
+            break;
+          }
+        } catch {
+          // keep polling
+        }
+      }
+
       setPrompt("");
       setImages([]);
     } catch (err) {
