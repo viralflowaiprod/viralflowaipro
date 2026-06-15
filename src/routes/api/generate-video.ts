@@ -14,7 +14,12 @@ const PayloadSchema = z.object({
   platforms: z.array(z.enum(PLATFORM_IDS)).max(6).optional().default([]),
   lang: z.string().max(10).optional().default("pt-f"),
   quantity: z.number().int().min(1).max(10).default(1),
+  audio_url: z.string().url().optional(),
+  image_count: z.number().int().min(1).max(20).optional().default(8),
 });
+
+const VIDEO_SERVER_URL =
+  "https://viralflowai-edge-tts-production.up.railway.app/create-video";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -27,7 +32,6 @@ export const Route = createFileRoute("/api/generate-video")({
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: cors }),
       POST: async ({ request }) => {
-        // Auth: require Bearer token from the signed-in user
         const auth = request.headers.get("Authorization") ?? "";
         const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
         if (!token) {
@@ -36,8 +40,7 @@ export const Route = createFileRoute("/api/generate-video")({
             headers: { ...cors, "Content-Type": "application/json" },
           });
         }
-        const { data: userData, error: userErr } =
-          await supabaseAdmin.auth.getUser(token);
+        const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(token);
         if (userErr || !userData.user) {
           return new Response(JSON.stringify({ error: "Invalid token" }), {
             status: 401,
@@ -46,7 +49,6 @@ export const Route = createFileRoute("/api/generate-video")({
         }
         const userId = userData.user.id;
 
-        // Validate input
         let body: unknown;
         try {
           body = await request.json();
@@ -63,16 +65,19 @@ export const Route = createFileRoute("/api/generate-video")({
             { status: 400, headers: { ...cors, "Content-Type": "application/json" } },
           );
         }
-        const { niche, topic, prompt, reference_images, cta, platform, platforms, lang, quantity } = parsed.data;
+        const {
+          niche, topic, prompt, reference_images, cta,
+          platform, platforms, quantity, audio_url, image_count,
+        } = parsed.data;
 
-        // 1) Create job (pending)
+        // 1) create job
         const { data: job, error: jobErr } = await supabaseAdmin
           .from("video_jobs")
           .insert({
             user_id: userId,
             niche,
             topic,
-            theme: topic, // keep legacy column in sync
+            theme: topic,
             prompt,
             reference_images,
             cta,
@@ -90,7 +95,7 @@ export const Route = createFileRoute("/api/generate-video")({
           );
         }
 
-        // 2) Create placeholder video rows
+        // 2) placeholder videos
         const rows = Array.from({ length: quantity }).map((_, i) => ({
           user_id: userId,
           title: `${topic} #${i + 1}`,
@@ -102,69 +107,75 @@ export const Route = createFileRoute("/api/generate-video")({
         }));
         await supabaseAdmin.from("videos").insert(rows);
 
+        // 3) call dedicated video server
+        const script = (prompt && prompt.trim()) || topic;
+        const serverPayload = {
+          audioUrl: audio_url ?? "",
+          script,
+          topic: niche || topic,
+          imageCount: image_count,
+        };
+
+        let externalJobId: string | null = null;
+        let serverStatus: "queued" | "failed" = "failed";
+        let serverError: string | null = null;
+        try {
+          const res = await fetch(VIDEO_SERVER_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(serverPayload),
+          });
+          const text = await res.text();
+          let json: Record<string, unknown> = {};
+          try { json = text ? JSON.parse(text) : {}; } catch { /* keep raw */ }
+          if (!res.ok) {
+            serverError = `Server returned ${res.status}: ${text.slice(0, 300)}`;
+          } else {
+            externalJobId = (json.job_id as string) ?? (json.id as string) ?? null;
+            serverStatus = "queued";
+          }
+        } catch (e) {
+          serverError = e instanceof Error ? e.message : String(e);
+        }
+
+        await supabaseAdmin
+          .from("video_jobs")
+          .update({
+            status: serverStatus === "queued" ? "processing" : "failed",
+            progress: serverStatus === "queued" ? 5 : 0,
+            error_message: serverError,
+            payload: {
+              external_job_id: externalJobId,
+              platforms: platforms.length ? platforms : [platform],
+              server: "railway:create-video",
+              sent: serverPayload,
+            },
+          })
+          .eq("id", job.id);
+
         await supabaseAdmin.from("automation_logs").insert({
           user_id: userId,
           job_id: job.id,
-          level: "info",
-          message: `Job criado via /api/generate-video (${quantity} vídeo(s))`,
-          metadata: { platform, niche, images: reference_images.length },
+          level: serverStatus === "queued" ? "info" : "error",
+          message:
+            serverStatus === "queued"
+              ? `Video server aceitou job ${externalJobId ?? "?"}`
+              : `Video server falhou: ${serverError ?? "unknown"}`,
+          metadata: { external_job_id: externalJobId, platform, niche },
         });
 
-        // 3) Fire webhook to n8n (best-effort, non-blocking failure)
-        const n8nUrl = process.env.N8N_WEBHOOK_URL;
-        let webhookStatus: "sent" | "skipped" | "failed" = "skipped";
-        if (n8nUrl) {
-          try {
-            const res = await fetch(n8nUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                action: "generate_video",
-                job_id: job.id,
-                user_id: userId,
-                niche,
-                topic,
-                prompt,
-                text: prompt || topic,
-                lang,
-                reference_images,
-                cta,
-                platform,
-                platforms: platforms.length ? platforms : [platform],
-                quantity,
-                callback_url: `${new URL(request.url).origin}/api/public/hooks/video-progress`,
-              }),
-            });
-            webhookStatus = res.ok ? "sent" : "failed";
-            await supabaseAdmin
-              .from("video_jobs")
-              .update({ status: res.ok ? "processing" : "failed", progress: res.ok ? 5 : 0, error_message: res.ok ? null : `n8n returned ${res.status}` })
-              .eq("id", job.id);
-            await supabaseAdmin.from("automation_logs").insert({
-              user_id: userId,
-              job_id: job.id,
-              level: res.ok ? "info" : "error",
-              message: `Webhook n8n: ${webhookStatus} (${res.status})`,
-            });
-          } catch (e) {
-            webhookStatus = "failed";
-            const msg = e instanceof Error ? e.message : String(e);
-            await supabaseAdmin
-              .from("video_jobs")
-              .update({ status: "failed", error_message: `Webhook error: ${msg}` })
-              .eq("id", job.id);
-            await supabaseAdmin.from("automation_logs").insert({
-              user_id: userId,
-              job_id: job.id,
-              level: "error",
-              message: `Webhook n8n falhou: ${msg}`,
-            });
-          }
-        }
-
         return new Response(
-          JSON.stringify({ ok: true, job_id: job.id, webhook: webhookStatus }),
-          { status: 200, headers: { ...cors, "Content-Type": "application/json" } },
+          JSON.stringify({
+            ok: serverStatus === "queued",
+            job_id: job.id,
+            external_job_id: externalJobId,
+            status: serverStatus,
+            error: serverError,
+          }),
+          {
+            status: serverStatus === "queued" ? 200 : 502,
+            headers: { ...cors, "Content-Type": "application/json" },
+          },
         );
       },
     },

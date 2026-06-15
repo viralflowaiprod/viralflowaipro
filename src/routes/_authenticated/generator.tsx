@@ -55,6 +55,12 @@ function Generator() {
   const [images, setImages] = useState<{ path: string; url: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [pollState, setPollState] = useState<{
+    status: string;
+    progress: number | null;
+    video_url: string | null;
+    srt_url: string | null;
+  } | null>(null);
 
   const { data: keys } = useQuery({
     queryKey: ["my-api-keys"],
@@ -147,6 +153,7 @@ function Generator() {
     }
 
     setSubmitting(true);
+    setPollState(null);
     try {
       const { data: s } = await supabase.auth.getSession();
       const token = s.session?.access_token;
@@ -169,18 +176,47 @@ function Generator() {
           platforms: selected,
           quantity,
           reference_images: images.map((i) => i.url),
+          image_count: 8,
         }),
       });
       const json = await res.json();
-      if (!res.ok) {
+      if (!res.ok || !json.external_job_id) {
         toast.error(json.error ?? "Falha ao disparar geração.");
         return;
       }
-      toast.success(
-        json.webhook === "sent"
-          ? "Pipeline disparado! Acompanhe em Processando."
-          : "Job criado. (n8n indisponível — verifique o webhook.)",
-      );
+      const externalId: string = json.external_job_id;
+      toast.success(`Job enviado (${externalId.slice(0, 8)}…). Aguardando vídeo…`);
+      setPollState({ status: "processing", progress: 0, video_url: null, srt_url: null });
+
+      // Polling every 4s, up to ~10 min
+      const start = Date.now();
+      const maxMs = 10 * 60 * 1000;
+      while (Date.now() - start < maxMs) {
+        await new Promise((r) => setTimeout(r, 4000));
+        try {
+          const sres = await fetch(`/api/video-status/${encodeURIComponent(externalId)}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const sjson = await sres.json();
+          setPollState({
+            status: sjson.status ?? "processing",
+            progress: sjson.progress ?? null,
+            video_url: sjson.video_url ?? null,
+            srt_url: sjson.srt_url ?? null,
+          });
+          if (sjson.status === "done" && sjson.video_url) {
+            toast.success("Vídeo pronto!");
+            break;
+          }
+          if (sjson.status === "failed" || sjson.status === "error") {
+            toast.error("Falha ao gerar vídeo no servidor.");
+            break;
+          }
+        } catch {
+          // keep polling
+        }
+      }
+
       setPrompt("");
       setImages([]);
     } catch (err) {
@@ -389,6 +425,52 @@ function Generator() {
           </Button>
         </form>
       </Card>
+
+      {pollState && (
+        <Card className="p-6 bg-gradient-surface border-border/60 shadow-card space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="font-display text-base">Status da geração</div>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary-glow">
+              {pollState.status}
+            </span>
+          </div>
+          {pollState.status !== "done" && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              Processando no servidor de vídeo… {pollState.progress != null ? `${pollState.progress}%` : ""}
+            </div>
+          )}
+          {pollState.video_url && (
+            <div className="space-y-2">
+              <video
+                src={pollState.video_url}
+                controls
+                className="w-full rounded-lg border border-border/60 bg-black"
+              />
+              <div className="flex flex-wrap gap-3 text-sm">
+                <a
+                  href={pollState.video_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary-glow hover:underline"
+                >
+                  Baixar vídeo
+                </a>
+                {pollState.srt_url && (
+                  <a
+                    href={pollState.srt_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary-glow hover:underline"
+                  >
+                    Baixar legenda (.srt)
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
     </div>
   );
 }
