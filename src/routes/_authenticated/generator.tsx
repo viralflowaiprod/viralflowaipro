@@ -425,6 +425,52 @@ function Generator() {
           </Button>
         </form>
       </Card>
+
+      {pollState && (
+        <Card className="p-6 bg-gradient-surface border-border/60 shadow-card space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="font-display text-base">Status da geração</div>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary-glow">
+              {pollState.status}
+            </span>
+          </div>
+          {pollState.status !== "done" && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              Processando no servidor de vídeo… {pollState.progress != null ? `${pollState.progress}%` : ""}
+            </div>
+          )}
+          {pollState.video_url && (
+            <div className="space-y-2">
+              <video
+                src={pollState.video_url}
+                controls
+                className="w-full rounded-lg border border-border/60 bg-black"
+              />
+              <div className="flex flex-wrap gap-3 text-sm">
+                <a
+                  href={pollState.video_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary-glow hover:underline"
+                >
+                  Baixar vídeo
+                </a>
+                {pollState.srt_url && (
+                  <a
+                    href={pollState.srt_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-primary-glow hover:underline"
+                  >
+                    Baixar legenda (.srt)
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
     </div>
   );
 }
